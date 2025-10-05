@@ -27,6 +27,13 @@ def login():
         pass
     return render_template('auth/login.html')
 
+@auth_bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash("You've been Logged-Out")
+    return redirect(url_for('auth.login'))
+
 @auth_bp.route('/register', methods=['GET','POST'])
 def register():
     if request.method== 'POST':
