@@ -6,9 +6,26 @@ from flask_login import login_user, logout_user, login_required
 
 auth_bp=Blueprint('auth',__name__,url_prefix='/auth')
 
-@auth_bp.route('/')
+@auth_bp.route('/login', methods=['GET','POST'])
 def login():
-    return 'Login Page'
+    if request.method=='POST':
+        email=request.form.get('email')
+        password=request.form.get('password')
+        user=User.query.filter_by(email=email).first()
+
+        if not user:
+            flash("User Does not Exist...Please Register First!!")
+            return redirect(url_for('auth.login'))
+        
+        if not check_password_hash(user.password, password):
+            flash("Incorrect Password!!")
+            return redirect(url_for('auth.login'))
+        
+        login_user(user)
+        flash("login Successfull!!")
+        return redirect(url_for('dashboard.dashboard_home'))
+        pass
+    return render_template('auth/login.html')
 
 @auth_bp.route('/register', methods=['GET','POST'])
 def register():
