@@ -18,13 +18,13 @@ def login():
             return redirect(url_for('auth.login'))
         
         if not check_password_hash(user.password, password):
-            flash("Incorrect Password!!")
+            flash("Incorrect Password!!","danger")
             return redirect(url_for('auth.login'))
         
         login_user(user)
         flash("login Successfull!!")
         return redirect(url_for('dashboard.dashboard_home'))
-        pass
+    
     return render_template('auth/login.html')
 
 @auth_bp.route('/logout')
