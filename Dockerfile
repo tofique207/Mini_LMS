@@ -10,7 +10,7 @@ ENV PYTHONUNBUFFERED=1
 
 # Install system dependencies needed for MySQL client
 RUN apt-get update && \
-    apt-get install -y build-essential default-libmysqlclient-dev && \
+    apt-get install -y build-essential default-libmysqlclient-dev pkg-config && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy and install Python dependencies
@@ -25,3 +25,4 @@ EXPOSE 5000
 
 # Default command
 CMD ["python", "run.py"]
+
