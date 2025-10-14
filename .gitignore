@@ -1,5 +1,21 @@
-__pychache__/
-*.__pychache__
+# Python cache files
+__pycache__/
+*.pyc
+
+# Virtual environments
 .venv/
-instance/
+venv/
+
+# Environment variables
 .env
+
+# Flask instance folder
+instance/
+
+# IDE / Editor configs
+.vscode/
+.idea/
+
+# OS junk files
+.DS_Store
+Thumbs.db
