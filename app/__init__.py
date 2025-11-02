@@ -13,6 +13,8 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+    login_manager.login_message = "Please Login to view this page."
+    login_manager.login_message_category = 'warning'
 
     from app.routes.main import main_bp
     from app.routes.auth import auth_bp
