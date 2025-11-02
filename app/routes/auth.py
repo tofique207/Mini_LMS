@@ -18,6 +18,10 @@ def is_safe_url(target):
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+
+    next_page = request.args.get('next') or request.form.get('next')
+
+
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -25,24 +29,23 @@ def login():
 
         if not user:
             flash("User does not exist. Please register first!", "warning")
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.login', next=next_page))
 
         if not check_password_hash(user.password, password):
             flash("Incorrect password!", "danger")
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.login', next=next_page))
 
         login_user(user)
         flash("Login successful!", "success")
 
         # Get 'next' URL from hidden input in form
-        next_page = request.form.get('next')
-        if next_page and next_page != '' and is_safe_url(next_page):
+        if next_page and next_page.strip() and is_safe_url(next_page):
             return redirect(next_page)
 
         # Default redirect if no 'next' URL
         return redirect(url_for('dashboard.dashboard_home'))
 
-    return render_template('auth/login.html')
+    return render_template('auth/login.html', next=next_page)
 
 
 @auth_bp.route('/logout')
