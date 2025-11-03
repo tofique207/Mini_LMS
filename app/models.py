@@ -7,7 +7,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    student = db.relationship('Student', backref='user', uselist=False)
+    student = db.relationship('Student', back_populates='user', uselist=False) #one-to-one relation with student
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -17,3 +17,4 @@ class Student(db.Model):
     course = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True)
+    user = db.relationship('User', back_populates='student')
