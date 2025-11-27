@@ -21,12 +21,14 @@ def create_app():
     from app.routes.students import students_bp
     from app.routes.courses import courses_bp
     from app.routes.dashboard import dashboard_bp
+    from app.routes.enrollments import enroll_bp
     
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(students_bp)
     app.register_blueprint(courses_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(enroll_bp)
 
     return app
 

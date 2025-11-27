@@ -18,13 +18,35 @@ class Student(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     age = db.Column(db.Integer)
-    course = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True)
     user = db.relationship('User', back_populates='student')
-
+    enrollments = db.relationship(
+    'Enrollment',
+    back_populates='student',
+    cascade='all, delete-orphan'
+)
+    courses = db.relationship(
+    'Course',
+    secondary='enrollment',
+    viewonly=True
+)
     def __repr__(self):
         return f"<Student {self.name}>"
+
+class Enrollment(db.Model):
+    __tablename__ = 'enrollment'
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+    enrolled_on = db.Column(db.DateTime, default=datetime.utcnow)
+    role = db.Column(db.String(20), default='student')
+
+    student = db.relationship('Student', back_populates='enrollments')
+    course = db.relationship('Course', back_populates='enrollments')
+
+    def __repr__(self):
+        return f"<Enrollment student={self.student_id} course={self.course_id}>"
 
 
 class Course(db.Model):
@@ -32,9 +54,15 @@ class Course(db.Model):
     course_name = db.Column(db.String(120), unique=True, nullable=False)
     description =  db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    # Relationship placeholder (for future enrollment table)
-    # students = db.relationship('Student', secondary='enrollments', back_populates='courses')
-
+    enrollments = db.relationship(
+    'Enrollment',
+    back_populates='course',
+    cascade='all, delete-orphan'
+)
+    students = db.relationship(
+    'Student',
+    secondary='enrollment',
+    viewonly=True
+)
     def __repr__(self):
         return f"<Course {self.course_name}>"
