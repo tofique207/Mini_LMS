@@ -1,8 +1,30 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect, url_for, flash, render_template
 from app import db
 from app.models import Enrollment, Student, Course
 
 enroll_bp = Blueprint('enrollments', __name__, url_prefix='/enrollments')
+
+@enroll_bp.route('/create', methods=['GET', 'POST'])
+def create_enrollment_ui():
+    students = Student.query.all()
+    courses = Course.query.all()
+    if request.method == 'POST':
+        student_id = request.form.get('student_id')
+        course_id = request.form.get('course_id')
+        role = request.form.get('role', 'student')
+        student_id = int(student_id)
+        course_id = int(course_id)
+        # Duplicate check + add enrollment
+        existing = Enrollment.query.filter_by(student_id=student_id, course_id=course_id).first()
+        if existing:
+            flash('Student is already enrolled in this course', 'danger')
+            return redirect(url_for('enrollments.create_enrollment_ui'))
+        enrollment = Enrollment(student_id=student_id, course_id=course_id, role=role)
+        db.session.add(enrollment)
+        db.session.commit()
+        flash('Enrollment created successfully', 'success')
+        return redirect(url_for('enrollments.list_enrollments_ui'))
+    return render_template('enrollments/create.html', students=students, courses=courses)
 
 @enroll_bp.route('', methods=['POST'])
 def create_enrollment():
@@ -48,6 +70,14 @@ def create_enrollment():
         }
     }), 201
 
+@enroll_bp.route('/ui', methods=['GET'])
+def list_enrollments_ui():
+    page = request.args.get('page', 1, type=int)
+    limit = 10
+    paginated = Enrollment.query.paginate(page=page, per_page=limit, error_out=False)
+    enrollments = paginated.items
+    return render_template('enrollments/list.html', enrollments=enrollments, paginated=paginated)
+
 @enroll_bp.route('', methods=['GET'])
 def list_enrollments():
     student_id = request.args.get('student_id', type=int)
@@ -81,6 +111,20 @@ def list_enrollments():
         'pages': paginated.pages,
         'enrollments': result
     }), 200
+
+@enroll_bp.route('/update/<int:enrollment_id>', methods=['GET', 'POST'])
+def update_enrollment_ui(enrollment_id):
+    enrollment = Enrollment.query.get_or_404(enrollment_id)
+    if request.method == 'POST':
+        role = request.form.get('role')
+        if role not in ['student', 'TA']:
+            flash('Invalid role', 'danger')
+            return redirect(url_for('enrollments.update_enrollment_ui', enrollment_id=enrollment_id))
+        enrollment.role = role
+        db.session.commit()
+        flash('Enrollment updated successfully', 'success')
+        return redirect(url_for('enrollments.list_enrollments_ui'))
+    return render_template('enrollments/update.html', enrollment=enrollment)
 
 @enroll_bp.route('/<int:enrollment_id>', methods=['PUT'])
 def update_enrollment(enrollment_id):
