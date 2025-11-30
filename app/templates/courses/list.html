@@ -7,56 +7,60 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<div class="container mt-4">
-    <h3 class="mb-3 text-center">All Courses</h3>
+<div class="container d-flex justify-content-center align-items-start" style="min-height:100vh; padding-top:50px;">
+    <div class="card p-4 shadow w-100" style="max-width:900px;">
+        <h3 class="card-title text-center mb-4">All Courses</h3>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show mb-3" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% if current_user.role == 'admin' %}
+        <div class="mb-3 text-end">
+            <a href="{{ url_for('courses.add_course') }}" class="btn btn-primary w-100 w-md-auto">Add Course</a>
         </div>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
+        {% endif %}
 
-    {% if current_user.role == 'admin' %}
-    <div class="mb-3 text-end">
-        <a href="{{ url_for('courses.add_course') }}" class="btn btn-primary">Add Course</a>
-    </div>
-    {% endif %}
-
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>Course Name</th>
-                    <th>Description</th>
-                    {% if current_user.role == 'admin' %}
-                    <th>Actions</th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for course in courses %}
-                <tr>
-                    <td>{{ loop.index }}</td>
-                    <td>{{ course.course_name }}</td>
-                    <td>{{ course.description }}</td>
-                    {% if current_user.role == 'admin' %}
-                    <td>
-                        <a href="{{ url_for('courses.edit_course', course_id=course.id) }}" class="btn btn-sm btn-warning">Edit</a>
-                        <form action="{{ url_for('courses.delete_course', course_id=course.id) }}" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                        </form>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Course Name</th>
+                        <th>Description</th>
+                        {% if current_user.role == 'admin' %}
+                        <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ course.course_name }}</td>
+                        <td>{{ course.description }}</td>
+                        {% if current_user.role == 'admin' %}
+                        <td>
+                            <div class="d-flex flex-column flex-md-row gap-1">
+                                <a href="{{ url_for('courses.edit_course', course_id=course.id) }}" class="btn btn-sm btn-warning w-100 w-md-auto">Edit</a>
+                                <form action="{{ url_for('courses.delete_course', course_id=course.id) }}" method="POST" class="d-inline w-100 w-md-auto">
+                                    <button type="submit" class="btn btn-sm btn-danger w-100" onclick="return confirm('Are you sure you want to delete this course?')">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

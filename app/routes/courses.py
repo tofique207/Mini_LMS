@@ -16,22 +16,25 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# List all courses (accessible to all logged-in users)
+# List all courses
 @courses_bp.route('/')
 @login_required
 def list_courses():
-    courses = Course.query.all()
+    courses = Course.query.order_by(Course.created_at.desc()).all()
     return render_template('courses/list.html', courses=courses)
 
 # Add a new course (admin only)
-@courses_bp.route('/add/', methods=['GET', 'POST'])
+@courses_bp.route('/add', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def add_course():
     if request.method == 'POST':
-        name = request.form.get('name')
-        description = request.form.get('description')
-        credits = request.form.get('credits')
+        name = request.form.get('name', '').strip()
+        description = request.form.get('description', '').strip()
+
+        if not name:
+            flash('Course name is required!', 'danger')
+            return redirect(url_for('courses.add_course'))
 
         existing_course = Course.query.filter_by(course_name=name).first()
         if existing_course:
@@ -47,15 +50,22 @@ def add_course():
     return render_template('courses/add.html')
 
 # Edit a course (admin only)
-@courses_bp.route('/edit/<int:course_id>/', methods=['GET', 'POST'])
+@courses_bp.route('/edit/<int:course_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit_course(course_id):
     course = Course.query.get_or_404(course_id)
 
     if request.method == 'POST':
-        course.course_name = request.form.get('name')
-        course.description = request.form.get('description')
+        course_name = request.form.get('name', '').strip()
+        description = request.form.get('description', '').strip()
+
+        if not course_name:
+            flash('Course name cannot be empty!', 'danger')
+            return redirect(url_for('courses.edit_course', course_id=course.id))
+
+        course.course_name = course_name
+        course.description = description
         db.session.commit()
         flash('Course updated successfully!', 'success')
         return redirect(url_for('courses.list_courses'))
@@ -63,7 +73,7 @@ def edit_course(course_id):
     return render_template('courses/edit.html', course=course)
 
 # Delete a course (admin only)
-@courses_bp.route('/delete/<int:course_id>/', methods=['POST'])
+@courses_bp.route('/delete/<int:course_id>', methods=['POST'])
 @login_required
 @admin_required
 def delete_course(course_id):
