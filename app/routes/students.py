@@ -2,24 +2,31 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app import db
 from app.models import Student
 from flask_login import login_required, current_user
+from app.utils.auth import require_roles
 import re
 
 students_bp = Blueprint('students', __name__, url_prefix='/students')
 
 EMAIL_RE = re.compile(r"^[^@]+@[^@]+\.[^@]+$")
 
+
+# List all students (admin only)
 @students_bp.route('/')
 @login_required
+@require_roles('admin')
 def student_home():
     students = Student.query.order_by(Student.created_at.desc()).all()
     return render_template('students/list.html', students=students)
 
+
+# Add student profile (only for users who are "student" role)
 @students_bp.route('/add', methods=["GET", "POST"])
 @login_required
+@require_roles('student')
 def add_student():
-    # Prevent creating duplicate profile for logged-in user
+    # Prevent duplicate student profile
     if current_user.student:
-        flash("You already have a profile!", "warning")
+        flash("You already created your student profile.", "warning")
         return redirect(url_for("students.student_home"))
 
     if request.method == 'POST':
@@ -37,7 +44,7 @@ def add_student():
             flash("A valid email is required.", "danger")
             return redirect(url_for("students.add_student"))
 
-        # Validate age (optional)
+        # Validate age
         age = None
         if age_raw:
             try:
@@ -48,13 +55,13 @@ def add_student():
                 flash("Age must be a positive integer.", "danger")
                 return redirect(url_for("students.add_student"))
 
-        # Check duplicate email
+        # Duplicate email check
         existing_student = Student.query.filter_by(email=email).first()
         if existing_student:
-            flash("Student with this email already exists.", "danger")
+            flash("A student with this email already exists.", "danger")
             return redirect(url_for("students.add_student"))
 
-        # Create student (no course here)
+        # Create student profile linked to this user
         new_student = Student(
             name=name,
             email=email,
@@ -64,7 +71,7 @@ def add_student():
         db.session.add(new_student)
         db.session.commit()
 
-        flash("Profile created successfully!", "success")
+        flash("Your student profile has been created!", "success")
         return redirect(url_for("students.student_home"))
 
     return render_template('students/add.html')

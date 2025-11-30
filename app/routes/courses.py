@@ -1,20 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app import db
 from app.models import Course
-from flask_login import login_required, current_user
-from functools import wraps
+from flask_login import login_required
+from app.utils.auth import require_roles  # NEW IMPORT
 
 courses_bp = Blueprint('courses', __name__, url_prefix='/courses')
 
-# Admin-only access decorator
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if current_user.role != 'admin':
-            flash("You do not have permission to access this page!", "danger")
-            return redirect(url_for('courses.list_courses'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 # List all courses
 @courses_bp.route('/')
@@ -23,10 +14,11 @@ def list_courses():
     courses = Course.query.order_by(Course.created_at.desc()).all()
     return render_template('courses/list.html', courses=courses)
 
+
 # Add a new course (admin only)
 @courses_bp.route('/add', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@require_roles('admin')   # NEW DECORATOR
 def add_course():
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
@@ -49,10 +41,11 @@ def add_course():
 
     return render_template('courses/add.html')
 
+
 # Edit a course (admin only)
 @courses_bp.route('/edit/<int:course_id>', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@require_roles('admin')   # NEW DECORATOR
 def edit_course(course_id):
     course = Course.query.get_or_404(course_id)
 
@@ -72,10 +65,11 @@ def edit_course(course_id):
 
     return render_template('courses/edit.html', course=course)
 
+
 # Delete a course (admin only)
 @courses_bp.route('/delete/<int:course_id>', methods=['POST'])
 @login_required
-@admin_required
+@require_roles('admin')   # NEW DECORATOR
 def delete_course(course_id):
     course = Course.query.get_or_404(course_id)
     db.session.delete(course)
