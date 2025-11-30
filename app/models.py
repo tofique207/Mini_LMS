@@ -19,18 +19,20 @@ class Student(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     age = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True)
     user = db.relationship('User', back_populates='student')
+
     enrollments = db.relationship(
-    'Enrollment',
-    back_populates='student',
-    cascade='all, delete-orphan'
-)
+        'Enrollment',
+        back_populates='student',
+        cascade='all, delete-orphan'
+    )
     courses = db.relationship(
-    'Course',
-    secondary='enrollment',
-    viewonly=True
-)
+        'Course',
+        secondary='enrollment',
+        viewonly=True
+    )
     def __repr__(self):
         return f"<Student {self.name}>"
 
@@ -50,19 +52,22 @@ class Enrollment(db.Model):
 
 
 class Course(db.Model):
+    __tablename__ = 'course'
     id = db.Column(db.Integer, primary_key=True)
-    course_name = db.Column(db.String(120), unique=True, nullable=False)
-    description =  db.Column(db.Text)
+    title = db.Column(db.String(120), unique=True, nullable=False)
+    description = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # Relationship with Enrollment
     enrollments = db.relationship(
-    'Enrollment',
-    back_populates='course',
-    cascade='all, delete-orphan'
-)
+        'Enrollment',
+        back_populates='course',
+        cascade='all, delete-orphan'
+    )
+    # Students enrolled in the course (read-only)
     students = db.relationship(
-    'Student',
-    secondary='enrollment',
-    viewonly=True
-)
+        'Student',
+        secondary='enrollment',
+        viewonly=True
+    )
     def __repr__(self):
-        return f"<Course {self.course_name}>"
+        return f"<Course {self.title}>"
