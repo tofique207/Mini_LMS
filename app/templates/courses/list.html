@@ -44,7 +44,7 @@
                     {% for course in courses %}
                     <tr>
                         <td>{{ loop.index }}</td>
-                        <td>{{ course.course_name }}</td>
+                        <td>{{ course.title }}</td>
                         <td>{{ course.description }}</td>
                         {% if current_user.role == 'admin' %}
                         <td>

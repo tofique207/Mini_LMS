@@ -28,12 +28,12 @@ def add_course():
             flash('Course name is required!', 'danger')
             return redirect(url_for('courses.add_course'))
 
-        existing_course = Course.query.filter_by(course_name=name).first()
+        existing_course = Course.query.filter_by(title=name).first()
         if existing_course:
             flash('Course already exists!', 'warning')
             return redirect(url_for('courses.add_course'))
 
-        new_course = Course(course_name=name, description=description)
+        new_course = Course(title=name, description=description)
         db.session.add(new_course)
         db.session.commit()
         flash('Course added successfully!', 'success')
@@ -57,7 +57,7 @@ def edit_course(course_id):
             flash('Course name cannot be empty!', 'danger')
             return redirect(url_for('courses.edit_course', course_id=course.id))
 
-        course.course_name = course_name
+        course.title = course_name
         course.description = description
         db.session.commit()
         flash('Course updated successfully!', 'success')

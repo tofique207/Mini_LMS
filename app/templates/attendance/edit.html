@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Attendance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Edit Attendance</h2>
+    <div class="card mt-3">
+        <div class="card-body">
+            <form action="{{ url_for('attendance.edit_attendance', attendance_id=attendance.id) }}" method="POST">
+                
+                <div class="mb-3">
+                    <label class="form-label">Student</label>
+                    <input type="text" class="form-control" value="{{ attendance.student.name }}" readonly disabled>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Course</label>
+                    <input type="text" class="form-control" value="{{ attendance.course.title }}" readonly disabled>
+                </div>
+
+                <div class="mb-3">
+                    <label for="attended" class="form-label">Attended Classes</label>
+                    <input type="number" class="form-control" id="attended" name="attended" min="0" value="{{ attendance.attended }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="total_classes" class="form-label">Total Classes</label>
+                    <input type="number" class="form-control" id="total_classes" name="total_classes" min="1" value="{{ attendance.total_classes }}" required>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success">Update Attendance</button>
+                    <a href="{{ url_for('attendance.list_attendance') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

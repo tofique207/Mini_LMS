@@ -38,7 +38,7 @@
                 <select name="course_id" id="course" class="form-select" required>
                     <option value="" disabled selected>Select Course</option>
                     {% for c in courses %}
-                        <option value="{{ c.id }}">{{ c.course_name }}</option>
+                        <option value="{{ c.id }}">{{ c.title }}</option>
                     {% endfor %}
                 </select>
             </div>

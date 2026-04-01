@@ -57,6 +57,8 @@ class Course(db.Model):
     title = db.Column(db.String(120), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    teacher = db.relationship('User', backref='courses_teaching')
     # Relationship with Enrollment
     enrollments = db.relationship(
         'Enrollment',
@@ -71,3 +73,43 @@ class Course(db.Model):
     )
     def __repr__(self):
         return f"<Course {self.title}>"
+
+
+class Mark(db.Model):
+    __tablename__ = 'mark'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+    marks = db.Column(db.Float, nullable=False)
+    total_marks = db.Column(db.Float, default=100.0, nullable=False)
+    recorded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('student_id', 'course_id'),
+    )
+
+    student = db.relationship('Student', backref='marks')
+    course = db.relationship('Course', backref='marks')
+    recorder = db.relationship('User', backref='recorded_marks')
+
+class Attendance(db.Model):
+    __tablename__ = 'attendance'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+    attended = db.Column(db.Integer, nullable=False)
+    total_classes = db.Column(db.Integer, nullable=False)
+    recorded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('student_id', 'course_id'),
+    )
+
+    student = db.relationship('Student', backref='attendance_records')
+    course = db.relationship('Course', backref='attendance_records')
+    recorder = db.relationship('User', backref='recorded_attendance')
+

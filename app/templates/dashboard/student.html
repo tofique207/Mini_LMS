@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+  <h2 class="mb-4">Student Dashboard</h2>
+
+  <!-- Student Info Card -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+
+      <h4 class="mb-3">{{ current_user.username }}</h4>
+
+      <p><strong>Email:</strong> {{ current_user.email }}</p>
+
+      {% if student %}
+      <p><strong>Age:</strong> {{ student.age or 'N/A' }}</p>
+      <p><strong>Joined:</strong> {{ student.created_at.strftime('%Y-%m-%d') }}</p>
+      {% else %}
+      <p class="text-muted">No student profile found.</p>
+      {% endif %}
+
+      <a href="{{ url_for('students.update_student') }}" class="btn btn-primary btn-sm">
+        Update Profile
+      </a>
+    </div>
+  </div>
+
+  <!-- Enrollment List -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="mb-3">Enrolled Courses</h5>
+
+      {% if enrollments and enrollments|length > 0 %}
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Course</th>
+              <th>Role</th>
+              <th>Enrolled On</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in enrollments %}
+            <tr>
+              <td>{{ e.course.title if e.course else '(deleted course)' }}</td>
+              <td>{{ e.role }}</td>
+              <td>{{ e.enrolled_on.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted mb-0">You are not enrolled in any course yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

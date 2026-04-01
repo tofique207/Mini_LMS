@@ -41,12 +41,12 @@
                     <tr>
                         <td>{{ e.id }}</td>
                         <td>{{ e.student.name }}</td>
-                        <td>{{ e.course.course_name }}</td>
+                        <td>{{ e.course.title }}</td>
                         <td>{{ e.role }}</td>
                         <td>{{ e.enrolled_on.strftime('%Y-%m-%d') }}</td>
                         <td class="d-flex flex-column flex-md-row gap-1">
                             <a href="{{ url_for('enrollments.update_enrollment_ui', enrollment_id=e.id) }}" class="btn btn-sm btn-warning w-100 w-md-auto">Edit</a>
-                            <form action="{{ url_for('enrollments.delete_enrollment', enrollment_id=e.id) }}" method="POST" style="display:inline;">
+                            <form action="{{ url_for('enrollments.delete_enrollment_ui', enrollment_id=e.id) }}" method="POST" style="display:inline;">
                                 <input type="hidden" name="_method" value="DELETE">
                                 <button type="submit" class="btn btn-sm btn-danger w-100 w-md-auto" onclick="return confirm('Delete this enrollment?');">Delete</button>
                             </form>

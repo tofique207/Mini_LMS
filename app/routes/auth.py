@@ -70,6 +70,7 @@ def register():
 
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
         new_user = User(username=username, email=email, password=hashed_password)
+        # role defaults to 'user' — upgraded to 'student' after profile creation
         db.session.add(new_user)
         db.session.commit()
 

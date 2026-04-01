@@ -33,8 +33,8 @@ def create_enrollment_ui():
             return redirect(url_for('enrollments.create_enrollment_ui'))
 
         # Check existence
-        student = Student.query.get(student_id)
-        course = Course.query.get(course_id)
+        student = db.session.get(Student, student_id)
+        course = db.session.get(Course, course_id)
         if not student or not course:
             flash('Student or course does not exist.', 'danger')
             return redirect(url_for('enrollments.create_enrollment_ui'))
@@ -81,7 +81,7 @@ def list_enrollments_ui():
 @login_required
 @require_roles('admin')
 def update_enrollment_ui(enrollment_id):
-    enrollment = Enrollment.query.get_or_404(enrollment_id)
+    enrollment = db.get_or_404(Enrollment, enrollment_id)
 
     if request.method == 'POST':
         role = request.form.get('role')
@@ -103,7 +103,7 @@ def update_enrollment_ui(enrollment_id):
 @login_required
 @require_roles('admin')
 def delete_enrollment_ui(enrollment_id):
-    enrollment = Enrollment.query.get_or_404(enrollment_id)
+    enrollment = db.get_or_404(Enrollment, enrollment_id)
 
     db.session.delete(enrollment)
     db.session.commit()
@@ -131,8 +131,8 @@ def create_enrollment_api():
     if role not in ['student', 'TA']:
         return jsonify({'error': 'Invalid role'}), 400
 
-    student = Student.query.get(student_id)
-    course = Course.query.get(course_id)
+    student = db.session.get(Student, student_id)
+    course = db.session.get(Course, course_id)
 
     if not student or not course:
         return jsonify({'error': 'Student or course does not exist'}), 404
@@ -150,7 +150,7 @@ def create_enrollment_api():
         'enrollment': {
             'id': enrollment.id,
             'student': student.name,
-            'course': course.course_name,
+            'course': course.title,
             'role': role,
             'enrolled_on': enrollment.enrolled_on.isoformat()
         }
@@ -162,7 +162,7 @@ def create_enrollment_api():
 @login_required
 @require_roles('admin')
 def update_enrollment_api(enrollment_id):
-    enrollment = Enrollment.query.get_or_404(enrollment_id)
+    enrollment = db.get_or_404(Enrollment, enrollment_id)
     data = request.get_json() or {}
 
     role = data.get('role')
@@ -180,7 +180,7 @@ def update_enrollment_api(enrollment_id):
 @login_required
 @require_roles('admin')
 def delete_enrollment_api(enrollment_id):
-    enrollment = Enrollment.query.get_or_404(enrollment_id)
+    enrollment = db.get_or_404(Enrollment, enrollment_id)
     db.session.delete(enrollment)
     db.session.commit()
     return jsonify({'message': 'Enrollment deleted'}), 200
@@ -200,7 +200,7 @@ def get_my_enrollments_api():
     return jsonify([
         {
             'id': e.id,
-            'course': e.course.course_name,
+            'course': e.course.title,
             'role': e.role,
             'enrolled_on': e.enrolled_on.isoformat()
         }
